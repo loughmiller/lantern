@@ -1,0 +1,3 @@
+[submodule "lib/FastLEDVisualizations"]
+	path = lib/FastLEDVisualizations
+	url = git@github.com:loughmiller/FastLEDVisualizations.git
