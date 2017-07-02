@@ -19,26 +19,30 @@ CRGB off;
 void clear();
 void setAll();
 
-#define NUM_STREAKS 8
+#define NUM_STREAKS 24
 
 CRGB pink = 0xFF0B20;
 CRGB blue = 0x0BFFDD;
 CRGB green = 0xB9FF0B;
 
-Streak * greenS[NUM_STREAKS];
-Streak * blueS[NUM_STREAKS];
-Streak * pinkS[NUM_STREAKS];
+CRGB colors[3];
+Streak * streaks[NUM_STREAKS];
 
-Sparkle * s1;
-Sparkle * s2;
+Sparkle * sparkles[3];
 
 int active = 0;
 
 void setup() {
+  unsigned int i;
+
   Serial.begin(9600);
 
   // DISPLAY STUFF
-  FastLED.setBrightness(32);
+  colors[0] = green;
+  colors[1] = blue;
+  colors[2] = pink;
+
+  FastLED.setBrightness(64);
   off = 0x000000;
   FastLED.addLeds<NEOPIXEL, DISPLAY_LED_PIN>(leds, NUM_LEDS).setCorrection( Typical8mmPixel );;
 
@@ -46,28 +50,31 @@ void setup() {
   FastLED.show();
   delay(2000);
 
-  for(unsigned int i=0; i<NUM_STREAKS; i++) {
-    greenS[i] = new Streak(COLUMNS, ROWS, leds, green);
-    blueS[i] = new Streak(COLUMNS, ROWS, leds, blue);
-    pinkS[i] = new Streak(COLUMNS, ROWS, leds, pink);
+  for(i=0; i<NUM_STREAKS; i++) {
+    streaks[i] = new Streak(COLUMNS, ROWS, leds, colors[i % 3]);
+    streaks[i]->setLengthMinMax(4, 8);
+    streaks[i]->setIntervalMinMax(40, 160);
   }
 
-  s1 = new Sparkle(1, NUM_LEDS, leds, blue, 201);
+  for(i=0; i<3; i++) {
+    sparkles[i] = new Sparkle(COLUMNS, ROWS, leds, colors[i % 3], 607);
+  }
 }
 
 void loop() {
+  unsigned int i;
   CRGB color;
 
   unsigned long currentTime = millis();
 
   clear();
 
-  s1->display();
+  for(i=0; i<NUM_STREAKS; i++) {
+    streaks[i]->display(currentTime);
+  }
 
-  for(unsigned int i=0; i<NUM_STREAKS; i++) {
-    pinkS[i]->display(currentTime);
-    blueS[i]->display(currentTime);
-    greenS[i]->display(currentTime);
+  for(i=0; i<3; i++) {
+    sparkles[i]->display();
   }
 
   FastLED.show();
