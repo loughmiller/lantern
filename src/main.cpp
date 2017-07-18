@@ -4,15 +4,15 @@
 #include <MSGEQ7.h>
 #include <Visualization.h>
 #include <Streak.h>
-// #include <Ladder.h>
+#include <Ladder.h>
 #include <Sparkle.h>
-// #include <Pulse.h>
+#include <Pulse.h>
 #include <Frequency.h>
 
 // MSGEQ7
 #define pinAnalog A0  // BLUE HARNESS
-#define pinReset 30   // BLUE R
-#define pinStrobe 31  // GREEN S
+#define pinReset 2    // BLUE R
+#define pinStrobe 3   // GREEN S
 #define MSGEQ7_INTERVAL ReadsPerSecond(100)
 #define MSGEQ7_SMOOTH 191 // Range: 0-255
 
@@ -30,7 +30,8 @@ CRGB off;
 void clear();
 void setAll(CRGB color);
 
-#define NUM_STREAKS 24
+#define NUM_STREAKS 5
+#define NUM_SPARKELS 3
 
 CRGB pink = 0xFF0B20;
 CRGB blue = 0x0BFFDD;
@@ -41,37 +42,38 @@ Streak * streaks[NUM_STREAKS];
 Sparkle * sparkles[3];
 Frequency * frequency;
 
-int frequencies[7];
-
-int active = 0;
+uint8_t frequencies[7];
 
 void setup() {
-  unsigned int i;
+  uint16_t i;
+  delay(2000);
 
   Serial.begin(9600);
+  Serial.println("setup started");
   MSGEQ7.begin();
 
   // DISPLAY STUFF
   colors[0] = green;
-  colors[1] = blue;
-  colors[2] = pink;
+  colors[1] = pink;
+  colors[2] = blue;
 
-  FastLED.setBrightness(64);
+  // FastLED.setBrightness(64);
   off = 0x000000;
   FastLED.addLeds<NEOPIXEL, DISPLAY_LED_PIN>(leds, NUM_LEDS).setCorrection( Typical8mmPixel );;
 
-  clear();
+  FastLED.setBrightness(64);
+  setAll(0xFFFFFF);
   FastLED.show();
   delay(2000);
 
   for(i=0; i<NUM_STREAKS; i++) {
-    streaks[i] = new Streak(COLUMNS, ROWS, leds, colors[i % 3]);
+    streaks[i] = new Streak(COLUMNS, ROWS, leds, colors[i % 2]);
     streaks[i]->setLengthMinMax(4, 8);
     streaks[i]->setIntervalMinMax(40, 160);
   }
 
-  for(i=0; i<3; i++) {
-    sparkles[i] = new Sparkle(COLUMNS, ROWS, leds, colors[i % 3], 607);
+  for(i=0; i<NUM_SPARKELS; i++) {
+    sparkles[i] = new Sparkle(COLUMNS, ROWS, leds, colors[i % 3], 407);
   }
 
   frequency = new Frequency(COLUMNS, ROWS, leds, blue);
@@ -82,7 +84,8 @@ void setup() {
 void loop() {
   unsigned int i;
   CRGB color;
-  clear();  // this only clears the array, not the LEDs, it's fine at the top
+//  clear();  // this only clears the array, not the LEDs, it's fine at the top
+  setAll(0x030303);
 
   bool newReading = MSGEQ7.read(MSGEQ7_INTERVAL);
   if (newReading) {
@@ -107,17 +110,15 @@ void loop() {
 
   frequency->display(currentTime, frequencies);
 
+  for(i=0; i<NUM_STREAKS; i++) {
+    streaks[i]->display(currentTime);
+  }
 
-  // for(i=0; i<NUM_STREAKS; i++) {
-  //   streaks[i]->display(currentTime);
-  // }
-  //
-  for(i=0; i<3; i++) {
+  for(i=0; i<NUM_SPARKELS; i++) {
     sparkles[i]->display();
   }
 
-  // setAll(blue);
-
+  // setAll(green);
   FastLED.show();
 }
 
