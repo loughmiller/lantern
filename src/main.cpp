@@ -49,7 +49,7 @@ void setup() {
 
   // FastLED.setBrightness(64);
   off = 0x000000;
-  FastLED.addLeds<NEOPIXEL, DISPLAY_LED_PIN>(leds, NUM_LEDS).setCorrection( Typical8mmPixel );;
+  FastLED.addLeds<NEOPIXEL, DISPLAY_LED_PIN>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );;
 
 //  FastLED.setBrightness(64);
   setAll(0xFFFFFF);
