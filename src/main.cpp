@@ -1,19 +1,20 @@
 #include <Arduino.h>
 #include <FastLED.h>
 #include <Wire.h>
-#include <MSGEQ7.h>
 #include <Visualization.h>
 #include <Streak.h>
-#include <Ladder.h>
 #include <Sparkle.h>
-#include <Pulse.h>
-#include <Frequency.h>
+#include <SoundReaction.h>
+#include <RainbowDrop.h>
+#include <TeensyAudioFFT.h>
 
 // FAST LED
 #define NUM_LEDS 150
 #define ROWS 15
 #define COLUMNS 10
 #define DISPLAY_LED_PIN 5
+
+#define AUDIO_INPUT_PIN A14
 
 CRGB leds[NUM_LEDS];
 CRGB off;
@@ -27,13 +28,18 @@ void setAll(CRGB color);
 CRGB pink = 0xFF0B20;
 CRGB blue = 0x0BFFDD;
 CRGB green = 0xB9FF0B;
+CRGB soundBlue = 0x0BFFDD;
 
 CRGB colors[3];
 Streak * streaks[NUM_STREAKS];
-Sparkle * sparkles[3];
-Frequency * frequency;
+Sparkle * sparkle;
+SoundReaction * soundReactionA;
+SoundReaction * soundReactionB;
 
-uint8_t frequencies[7];
+RainbowDrop * rainbowDrop;
+
+enum States { streaksState, rainbowState };
+States currentVisualization;
 
 void setup() {
   uint16_t i;
@@ -42,16 +48,21 @@ void setup() {
   Serial.begin(9600);
   Serial.println("setup started");
 
+  off = 0x000000;
+  setAll(off);
+  FastLED.show();
+
+  // AUDIO setup
+  TeensyAudioFFTSetup(AUDIO_INPUT_PIN);
+  samplingBegin();
+
   // DISPLAY STUFF
   colors[0] = green;
   colors[1] = pink;
   colors[2] = blue;
 
-  // FastLED.setBrightness(64);
-  off = 0x000000;
   FastLED.addLeds<NEOPIXEL, DISPLAY_LED_PIN>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );;
 
-//  FastLED.setBrightness(64);
   setAll(0xFFFFFF);
   FastLED.show();
   delay(2000);
@@ -62,11 +73,15 @@ void setup() {
     streaks[i]->setIntervalMinMax(40, 160);
   }
 
-  for(i=0; i<NUM_SPARKELS; i++) {
-    sparkles[i] = new Sparkle(COLUMNS, ROWS, leds, colors[i % 3], 407);
-  }
+  sparkle = new Sparkle(COLUMNS, ROWS, leds, 0xFFFFFF, 207);
 
-  // frequency = new Frequency(COLUMNS, ROWS, leds, blue);
+  //soundBlue.fadeLightBy(192);
+  soundReactionA = new SoundReaction(0, 15, leds, soundBlue, 0xBBBBBB);
+  soundReactionB = new SoundReaction(75, 90, leds, soundBlue, 0xBBBBBB);
+
+  rainbowDrop = new RainbowDrop(COLUMNS, ROWS, leds);
+
+  currentVisualization = rainbowState;
 
   Serial.println("setup complete");
 }
@@ -75,19 +90,25 @@ void loop() {
   unsigned int i;
   CRGB color;
 
-  setAll(0x030303); // this only clears the array, not the LEDs, it's fine at the top
+  setAll(0x303030); // this only clears the array, not the LEDs, it's fine at the top
 
   unsigned long currentTime = millis();
+  float intensity = readRelativeIntensity(currentTime, 2, 4);
 
-  for(i=0; i<NUM_STREAKS; i++) {
-    streaks[i]->display(currentTime);
+  if (currentVisualization == streaksState) {
+    soundReactionA->display(intensity);
+    soundReactionB->display(intensity);
+
+    for(i=0; i<NUM_STREAKS; i++) {
+      streaks[i]->display(currentTime);
+    }
   }
 
-  for(i=0; i<NUM_SPARKELS; i++) {
-    sparkles[i]->display();
+  if (currentVisualization == rainbowState) {
+    rainbowDrop->display(currentTime, intensity);
+    // sparkle->display();
   }
 
-  // setAll(green);
   FastLED.show();
 }
 

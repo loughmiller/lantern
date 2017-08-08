@@ -1,3 +1,6 @@
 [submodule "lib/FastLEDVisualizations"]
 	path = lib/FastLEDVisualizations
 	url = git@github.com:loughmiller/FastLEDVisualizations.git
+[submodule "lib/TeensyAudioFFT"]
+	path = lib/TeensyAudioFFT
+	url = git@github.com:loughmiller/TeensyAudioFFT.git
