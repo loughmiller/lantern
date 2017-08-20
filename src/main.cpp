@@ -4,17 +4,16 @@
 #include <Visualization.h>
 #include <Streak.h>
 #include <Sparkle.h>
-#include <SoundReaction.h>
 #include <RainbowDrop.h>
-#include <TeensyAudioFFT.h>
 
 // FAST LED
+// #define NUM_LEDS 310
+// #define ROWS 38
+// #define COLUMNS 8
 #define NUM_LEDS 150
-#define ROWS 15
-#define COLUMNS 10
-#define DISPLAY_LED_PIN 5
-
-#define AUDIO_INPUT_PIN A14
+#define ROWS 150
+#define COLUMNS 1
+#define DISPLAY_LED_PIN 22
 
 CRGB leds[NUM_LEDS];
 CRGB off;
@@ -22,7 +21,7 @@ CRGB off;
 void clear();
 void setAll(CRGB color);
 
-#define NUM_STREAKS 5
+#define NUM_STREAKS 9
 #define NUM_SPARKELS 3
 
 CRGB pink = 0xFF0B20;
@@ -33,8 +32,6 @@ CRGB soundBlue = 0x0BFFDD;
 CRGB colors[3];
 Streak * streaks[NUM_STREAKS];
 Sparkle * sparkle;
-SoundReaction * soundReactionA;
-SoundReaction * soundReactionB;
 
 RainbowDrop * rainbowDrop;
 
@@ -52,10 +49,6 @@ void setup() {
   setAll(off);
   FastLED.show();
 
-  // AUDIO setup
-  TeensyAudioFFTSetup(AUDIO_INPUT_PIN);
-  samplingBegin();
-
   // DISPLAY STUFF
   colors[0] = green;
   colors[1] = pink;
@@ -68,20 +61,17 @@ void setup() {
   delay(2000);
 
   for(i=0; i<NUM_STREAKS; i++) {
-    streaks[i] = new Streak(COLUMNS, ROWS, leds, colors[i % 2]);
-    streaks[i]->setLengthMinMax(4, 8);
-    streaks[i]->setIntervalMinMax(40, 160);
+    streaks[i] = new Streak(COLUMNS, ROWS, leds, colors[i % 3]);
+    streaks[i]->setLengthMinMax(13, 31);
+    streaks[i]->setIntervalMinMax(5, 25);
   }
 
   sparkle = new Sparkle(COLUMNS, ROWS, leds, 0xFFFFFF, 207);
 
-  //soundBlue.fadeLightBy(192);
-  soundReactionA = new SoundReaction(0, 15, leds, soundBlue, 0xBBBBBB);
-  soundReactionB = new SoundReaction(75, 90, leds, soundBlue, 0xBBBBBB);
-
   rainbowDrop = new RainbowDrop(COLUMNS, ROWS, leds);
+  rainbowDrop->setInterval(1);
 
-  currentVisualization = rainbowState;
+  currentVisualization = streaksState;
 
   Serial.println("setup complete");
 }
@@ -90,25 +80,21 @@ void loop() {
   unsigned int i;
   CRGB color;
 
-  setAll(0x303030); // this only clears the array, not the LEDs, it's fine at the top
+  // setAll(0x303030); // this only clears the array, not the LEDs, it's fine at the top
 
   unsigned long currentTime = millis();
-  float intensity = readRelativeIntensity(currentTime, 2, 4);
 
-  if (currentVisualization == streaksState) {
-    soundReactionA->display(intensity);
-    soundReactionB->display(intensity);
+  //if (currentVisualization == rainbowState) {
+    rainbowDrop->display(currentTime, 0);
+  //}
 
+  //if (currentVisualization == streaksState) {
     for(i=0; i<NUM_STREAKS; i++) {
       streaks[i]->display(currentTime);
     }
-  }
+  //}
 
-  if (currentVisualization == rainbowState) {
-    rainbowDrop->display(currentTime, intensity);
-    // sparkle->display();
-  }
-
+  //sparkle->display();
   FastLED.show();
 }
 
