@@ -48,7 +48,7 @@ void setup() {
 
   sparkle = new Sparkle(NUM_LEDS, 0, 0, leds, 507);
 
-  rainbowDrop = new RainbowDrop(COLUMNS, ROWS, leds);
+  rainbowDrop = new RainbowDrop(COLUMNS, ROWS, 225, leds);
   rainbowDrop->setInterval(10);
 
   currentVisualization = streaksState;
