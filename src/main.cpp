@@ -7,9 +7,9 @@
 #include <RainbowDrop.h>
 
 // FAST LED
-#define NUM_LEDS 310
-#define ROWS 38
-#define COLUMNS 8
+#define NUM_LEDS 270
+#define ROWS 45
+#define COLUMNS 6
 #define DISPLAY_LED_PIN 22
 
 CRGB leds[NUM_LEDS];
@@ -19,7 +19,6 @@ void clear();
 void setAll(CRGB color);
 
 Streak * streak;
-Sparkle * sparkle;
 RainbowDrop * rainbowDrop;
 
 enum States { streaksState, rainbowState };
@@ -36,7 +35,8 @@ void setup() {
   setAll(off);
   FastLED.show();
 
-  FastLED.addLeds<NEOPIXEL, DISPLAY_LED_PIN>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );;
+  FastLED.addLeds<NEOPIXEL, DISPLAY_LED_PIN>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
+  FastLED.setBrightness(128);
 
   setAll(0x303030);
   FastLED.show();
@@ -44,12 +44,10 @@ void setup() {
 
   streak = new Streak(COLUMNS, ROWS, 245, 244, leds);
   streak->setLengthMinMax(8, 17);
-  streak->setIntervalMinMax(2, 10);
-
-  sparkle = new Sparkle(NUM_LEDS, 0, 0, leds, 507);
+  streak->setIntervalMinMax(129, 339);
 
   rainbowDrop = new RainbowDrop(COLUMNS, ROWS, 225, leds);
-  rainbowDrop->setInterval(10);
+  rainbowDrop->setInterval(80);
 
   currentVisualization = streaksState;
 
@@ -75,7 +73,6 @@ void loop() {
   // }
 
   streak->display(currentTime);
-  sparkle->display();
   FastLED.show();
 }
 
