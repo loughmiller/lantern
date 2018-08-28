@@ -9,10 +9,10 @@
 #include <TeensyAudioFFT.h>
 
 // FAST LED
-#define NUM_LEDS 150
-#define ROWS 15
-#define COLUMNS 10
-#define DISPLAY_LED_PIN 5
+#define NUM_LEDS 960
+#define ROWS 120
+#define COLUMNS 8
+#define DISPLAY_LED_PIN 22
 
 #define AUDIO_INPUT_PIN A14
 
