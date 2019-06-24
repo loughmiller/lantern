@@ -21,7 +21,10 @@ CRGB off;
 
 Visualization * all;
 Sparkle * sparkle;
-Streak * streak;
+Streak * streak0;
+Streak * streak1;
+Streak * streak2;
+Streak * streak3;
 RainbowDrop * rainbowDrop;
 
 void setup() {
@@ -45,12 +48,28 @@ void setup() {
   delay(1000);
 
   sparkle = new Sparkle(NUM_LEDS, 0, 0, leds, 567);
+  sparkle->setValue(0);
   rainbowDrop = new RainbowDrop(COLUMNS, ROWS, 225, leds);
-  streak = new Streak(COLUMNS, ROWS, 0, 255, leds);
-  streak->setLengthMinMax(7, 12);
-  streak->setIntervalMinMax(30, 70);
-  streak->setFade(false);
-  streak->setRandomHue(true);
+
+  streak0 = new Streak(COLUMNS, ROWS, 0, 255, leds);
+  streak0->setLengthMinMax(7, 12);
+  streak0->setIntervalMinMax(30, 70);
+  streak0->setValue(0);
+
+  streak1 = new Streak(COLUMNS, ROWS, 0, 255, leds);
+  streak1->setLengthMinMax(7, 12);
+  streak1->setIntervalMinMax(30, 70);
+  streak1->setValue(0);
+
+  streak2 = new Streak(COLUMNS, ROWS, 0, 255, leds);
+  streak2->setLengthMinMax(7, 12);
+  streak2->setIntervalMinMax(30, 70);
+  streak2->setValue(0);
+
+  streak3 = new Streak(COLUMNS, ROWS, 0, 255, leds);
+  streak3->setLengthMinMax(7, 12);
+  streak3->setIntervalMinMax(30, 70);
+  streak3->setValue(0);
 
   Serial.println("setup complete");
 }
@@ -60,7 +79,10 @@ void loop() {
   float intensity = readRelativeIntensity(currentTime, 2, 4);
 
   rainbowDrop->display(currentTime, intensity);
-  streak->display(currentTime);
+  streak0->display(currentTime);
+  streak1->display(currentTime);
+  streak2->display(currentTime);
+  streak3->display(currentTime);
   sparkle->display();
 
   FastLED.show();
